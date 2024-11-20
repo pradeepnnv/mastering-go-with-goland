@@ -51,6 +51,34 @@ func NewServer(todoSvc *todo.Service) *Server {
 		writer.WriteHeader(http.StatusCreated)
 		return
 	})
+
+	mux.HandleFunc("GET /search", func(writer http.ResponseWriter, request *http.Request) {
+		query := request.URL.Query().Get("q")
+		if query == "" {
+			writer.WriteHeader(http.StatusBadRequest)
+			log.Println("Query parameter is missing.")
+			return
+		}
+		todos := todoSvc.Search(query)
+		if len(todos) == 0 {
+			writer.WriteHeader(http.StatusNotFound)
+			log.Println("No items found")
+			return
+		}
+		b, err := json.Marshal(todos)
+		if err != nil {
+			writer.WriteHeader(http.StatusInternalServerError)
+			log.Fatal(err)
+			return
+		}
+		_, err = writer.Write(b)
+		if err != nil {
+			writer.WriteHeader(http.StatusInternalServerError)
+			log.Fatal(err)
+			return
+		}
+
+	})
 	return &Server{
 		mux: mux,
 	}
