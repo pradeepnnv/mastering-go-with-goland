@@ -21,7 +21,7 @@ func NewService() *Service {
 
 func (svc *Service) Add(todo string) error {
 	for _, t := range svc.todos {
-		if t.Task == todo {
+		if strings.ToLower(t.Task) == strings.ToLower(todo) {
 			return errors.New("todo is not unique")
 		}
 	}
@@ -39,7 +39,7 @@ func (svc *Service) GetAll() []Item {
 func (svc *Service) Search(query string) []string {
 	var results []string
 	for _, t := range svc.todos {
-		if strings.Contains(t.Task, query) {
+		if strings.Contains(strings.ToLower(t.Task), strings.ToLower(query)) {
 			results = append(results, t.Task)
 		}
 	}
