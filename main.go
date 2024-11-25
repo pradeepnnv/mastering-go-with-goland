@@ -22,8 +22,15 @@ func InitializeDb() *db.DB {
 	viper.AutomaticEnv()
 	viper.SetDefault("PORT", "5432")
 
-	if !viper.IsSet("USER") || !viper.IsSet("PASSWORD") || !viper.IsSet("HOST") || !viper.IsSet("NAME") {
-		log.Fatal("DB Details not provided")
+	for _, eName := range []string{
+		"USER",
+		"PASSWORD",
+		"HOST",
+		"NAME",
+	} {
+		if !viper.IsSet(eName) {
+			log.Fatalf("Environment value DB_%s is not set", eName)
+		}
 	}
 
 	d, err := db.New(
