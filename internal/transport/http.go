@@ -18,7 +18,13 @@ type Server struct {
 func NewServer(todoSvc *todo.Service) *Server {
 	mux := http.NewServeMux()
 	mux.HandleFunc("GET /todo", func(w http.ResponseWriter, r *http.Request) {
-		b, err := json.Marshal(todoSvc.GetAll())
+		todos, err := todoSvc.GetAll()
+		if err != nil {
+			w.WriteHeader(http.StatusInternalServerError)
+			log.Println(err)
+			return
+		}
+		b, err := json.Marshal(todos)
 		if err != nil {
 			log.Fatal(err)
 		}
@@ -59,7 +65,12 @@ func NewServer(todoSvc *todo.Service) *Server {
 			log.Println("Query parameter is missing.")
 			return
 		}
-		todos := todoSvc.Search(query)
+		todos, err := todoSvc.Search(query)
+		if err != nil {
+			writer.WriteHeader(http.StatusInternalServerError)
+			log.Println(err)
+			return
+		}
 		if len(todos) == 0 {
 			writer.WriteHeader(http.StatusNotFound)
 			log.Println("No items found")
