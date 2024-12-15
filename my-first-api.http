@@ -13,7 +13,7 @@ GET http://localhost:8080/todo
 POST localhost:8080/todo
 
 {
-"item": "get groceries"
+"item": "aget groceries"
 }
 
 ### DELETE request to remove a todo

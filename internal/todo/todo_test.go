@@ -1,34 +1,24 @@
 package todo_test
 
 import (
-	"github.com/spf13/viper"
-	"log"
+	"context"
 	"my-first-api/internal/db"
 	"my-first-api/internal/todo"
 	"reflect"
 	"testing"
 )
 
-func InitializeDb() *db.DB {
-	viper.SetEnvPrefix("DB")
-	viper.AutomaticEnv()
-	viper.SetDefault("PORT", "5432")
+type MockDB struct {
+	items []db.Item
+}
 
-	if !viper.IsSet("USER") || !viper.IsSet("PASSWORD") || !viper.IsSet("HOST") || !viper.IsSet("NAME") {
-		log.Fatal("DB Details not provided")
-	}
+func (m *MockDB) InsertItem(ctx context.Context, item db.Item) error {
+	m.items = append(m.items, item)
+	return nil
+}
 
-	d, err := db.New(
-		viper.GetString("USER"),
-		viper.GetString("PASSWORD"),
-		viper.GetString("HOST"),
-		viper.GetInt("PORT"),
-		viper.GetString("NAME"),
-	)
-	if err != nil {
-		log.Fatal(err)
-	}
-	return d
+func (m *MockDB) GetAllItems(ctx context.Context) ([]db.Item, error) {
+	return m.items, nil
 }
 
 func TestService_Search(t *testing.T) {
@@ -65,8 +55,8 @@ func TestService_Search(t *testing.T) {
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			d := InitializeDb()
-			svc := todo.NewService(d)
+			m := &MockDB{}
+			svc := todo.NewService(m)
 			for _, toDoToAdd := range tt.toDosToAdd {
 				err := svc.Add(toDoToAdd)
 				if err != nil {
