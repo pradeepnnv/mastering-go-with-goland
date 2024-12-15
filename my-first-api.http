@@ -1,0 +1,44 @@
+### GET request to my first api.
+GET http://localhost:8080/todo
+
+> {%
+    client.test("Request executed successfully", function () {
+        client.assert(response.status === 200, "Response status is not 200");
+    });
+%}
+
+###
+
+### POST request to add a TODO
+POST localhost:8080/todo
+
+{
+"item": "aget groceries"
+}
+
+### DELETE request to remove a todo
+DELETE localhost:8080/todo?id=1
+
+### DELETE with invalid param value
+DELETE localhost:8080/todo?id=abcd
+
+### DELETE with a non existant id
+DELETE localhost:8080/todo?id=123456
+
+### Search with non existing value
+GET localhost:8080/search?q=a
+
+> {%
+    client.test("Request executed successfully", function () {
+        client.assert(response.status === 404, "Response status is not 404");
+    });
+%}
+
+### Search with existing value
+GET localhost:8080/search?q=Get
+
+> {%
+    client.test("Request executed successfully", function () {
+        client.assert(response.status === 200, "Response status is not 200");
+    });
+%}
